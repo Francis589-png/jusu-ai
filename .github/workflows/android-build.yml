@@ -7,29 +7,40 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    env:
-      ANDROID_API: 31
-      ANDROID_BUILD_TOOLS: 31.0.0
-      ANDROID_NDK_VERSION: 23.1.7779620
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip git openjdk-17-jdk zip unzip libgl1-mesa-dev libgles2-mesa-dev libmtdev-dev libffi-dev libssl-dev
-          pip3 install --upgrade pip
-          pip3 install --upgrade buildozer cython
+          sudo apt-get install -y \
+            python3-pip \
+            git \
+            zip \
+            unzip \
+            openjdk-17-jdk \
+            libgl1-mesa-dev \
+            libgles2-mesa-dev \
+            libmtdev-dev \
+            libffi-dev \
+            libssl-dev \
+            libjpeg-dev \
+            build-essential \
+            cmake
+
+          pip install --upgrade pip
+          pip install --user Cython==0.29.36
+          pip install --user buildozer
 
       - name: Build APK
         run: |
-          buildozer android debug
-        shell: bash
+          ~/.local/bin/buildozer android debug
 
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jusu-ai-apk
           path: bin/*.apk
