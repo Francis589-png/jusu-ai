@@ -39,12 +39,12 @@ android.api = 33
 
 # (int) Minimum Android API supported
 android.minapi = 21
-
+android.build_tools_version = 33.0.0
 # (int) Android SDK version to compile against
 android.sdk = 33
 
 # (int) Android NDK version to use
-android.ndk = 25b
+android.ndk = 23b
 
 # (bool) Use Android X support libraries
 android.use_androidx = True
