@@ -1,4 +1,4 @@
-name: Build APK
+name: Android Build
 
 on:
   push:
@@ -9,42 +9,38 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     env:
-      ANDROID_HOME: ${{ github.workspace }}/android-sdk
-      PATH: ${{ github.workspace }}/android-sdk/platform-tools:${{ github.workspace }}/android-sdk/cmdline-tools/latest/bin:${{ github.workspace }}/android-sdk/build-tools/33.0.0:$PATH
+      ANDROID_HOME: ${{ runner.home }}/Android
+      SDK_ROOT: ${{ runner.home }}/Android
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-pip python3-setuptools python3-dev \
-          build-essential git unzip openjdk-17-jdk
-        pip3 install --upgrade buildozer cython
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip python3-setuptools python3-wheel git openjdk-11-jdk unzip
+          pip3 install --upgrade buildozer cython
 
-    - name: Download Android SDK Command-line Tools
-      run: |
-        mkdir -p $ANDROID_HOME/cmdline-tools
-        cd $ANDROID_HOME/cmdline-tools
-        curl -o commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
-        unzip -q commandlinetools.zip
-        rm commandlinetools.zip
-        mv cmdline-tools latest
+      - name: Download Android Command line tools
+        run: |
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          cd $ANDROID_HOME/cmdline-tools
+          curl -o commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+          unzip commandlinetools.zip
+          mv cmdline-tools latest
+          rm commandlinetools.zip
 
-    - name: Accept licenses and install SDK components
-      run: |
-        yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses || true
-        sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-33" "build-tools;33.0.0" "ndk;25.2.9519653" "cmake;3.22.1"
+      - name: Update sdkmanager and install SDK packages
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses --verbose
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-33" "build-tools;33.0.0"
 
-    - name: Initialize Buildozer and build APK
-      run: |
-        buildozer android debug
+      - name: Show installed SDK components
+        run: |
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list --sdk_root=$ANDROID_HOME
 
-    - name: Upload APK artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: JUSU-AI-APK
-        path: bin/*.apk
+      - name: Build APK with Buildozer
+        run: |
+          buildozer android debug
