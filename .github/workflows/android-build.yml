@@ -10,8 +10,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      ANDROID_HOME: ${{ runner.home }}/Android
-      SDK_ROOT: ${{ runner.home }}/Android
+      ANDROID_HOME: ${{ github.workspace }}/.android-sdk
+      SDK_ROOT: ${{ github.workspace }}/.android-sdk
 
     steps:
       - name: Checkout repository
