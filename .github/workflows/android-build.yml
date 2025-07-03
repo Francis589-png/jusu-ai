@@ -23,7 +23,7 @@ jobs:
           sudo apt-get install -y python3-pip python3-setuptools python3-wheel git openjdk-11-jdk unzip
           pip3 install --upgrade buildozer cython
 
-      - name: Download Android Command line tools
+      - name: Download Android command line tools
         run: |
           mkdir -p $ANDROID_HOME/cmdline-tools
           cd $ANDROID_HOME/cmdline-tools
@@ -32,9 +32,12 @@ jobs:
           mv cmdline-tools latest
           rm commandlinetools.zip
 
-      - name: Update sdkmanager and install SDK packages
+      - name: Accept licenses
         run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses --verbose
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
+
+      - name: Install Android SDK packages
+        run: |
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-33" "build-tools;33.0.0"
 
       - name: Show installed SDK components
