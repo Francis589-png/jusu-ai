@@ -33,7 +33,8 @@ jobs:
           rm commandlinetools.zip
 
       - name: Accept licenses
-        run: |
+        run: | 
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
 
       - name: Install Android SDK packages
