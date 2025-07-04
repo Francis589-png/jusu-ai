@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ANDROID_HOME: ${{ github.workspace }}/.android-sdk
+      ANDROID_SDK_ROOT: ${{ github.workspace }}/.android-sdk
       SDK_ROOT: ${{ github.workspace }}/.android-sdk
 
     steps:
@@ -29,18 +30,32 @@ jobs:
           unzip cmdline-tools.zip
           mv cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
-      - name: Accept licenses
-        run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
-
       - name: Install Android SDK packages
         run: |
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-33" "build-tools;33.0.0"
 
-      - name: Show installed components
+      - name: Accept licenses
         run: |
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --list
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
+
+      - name: Ensure licenses directory exists and populate
+        run: |
+          mkdir -p $ANDROID_HOME/licenses
+          echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > $ANDROID_HOME/licenses/android-sdk-license
+          echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_HOME/licenses/android-sdk-preview-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $ANDROID_HOME/licenses/intel-android-extra-license
+
+      - name: List licenses
+        run: |
+          ls -l $ANDROID_HOME/licenses
+          cat $ANDROID_HOME/licenses/*
 
       - name: Build APK
         run: |
           buildozer android debug
+
+      - name: Archive APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: JusuAI-APK
+          path: bin/*.apk
